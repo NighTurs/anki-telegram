@@ -44,6 +44,7 @@ class FlashcardService:
 
         flashcard = result.flashcard
         try:
+            await self._try_sync()
             note_id = await self._anki.add_note(flashcard)
         except AnkiClientError as exc:
             logger.error("Anki add failed: %s", exc)
@@ -59,6 +60,7 @@ class FlashcardService:
 
         last = self._state.last_added
         try:
+            await self._try_sync()
             await self._anki.delete_note(last.note_id)
         except AnkiClientError as exc:
             logger.error("Anki delete failed: %s", exc)
