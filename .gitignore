@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+.uv/
+
+# Tooling
+.ruff_cache/
+.pytest_cache/
+
+# OS
+.DS_Store
+
+#IDEs
+.vscode/
+.idea/
+
+# Config
+config.yaml
