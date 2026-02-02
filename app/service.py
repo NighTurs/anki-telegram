@@ -38,7 +38,7 @@ class FlashcardService:
     async def _handle_add(self, text: str) -> BotResponse:
         try:
             result = await self._generator.generate(text)
-        except GeneratorError as exc:
+        except Exception as exc:
             logger.error("Generator error: %s", exc)
             return BotResponse(message="Sorry, I could not generate a flashcard.")
 
@@ -46,7 +46,7 @@ class FlashcardService:
         try:
             await self._try_sync()
             note_id = await self._anki.add_note(flashcard)
-        except AnkiClientError as exc:
+        except Exception as exc:
             logger.error("Anki add failed: %s", exc)
             return BotResponse(message="Failed to add flashcard to Anki.")
 
@@ -62,7 +62,7 @@ class FlashcardService:
         try:
             await self._try_sync()
             await self._anki.delete_note(last.note_id)
-        except AnkiClientError as exc:
+        except Exception as exc:
             logger.error("Anki delete failed: %s", exc)
             return BotResponse(message="Failed to delete flashcard from Anki.")
 
@@ -73,7 +73,7 @@ class FlashcardService:
     async def _try_sync(self) -> str | None:
         try:
             await self._anki.sync()
-        except AnkiClientError as exc:
+        except Exception as exc:
             logger.warning("Anki sync failed: %s", exc)
             return "Warning: Anki sync failed."
         return None

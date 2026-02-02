@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from dataclasses import dataclass
@@ -129,7 +130,8 @@ class CopilotGenerator(Generator):
         await client.start()
         try:
             session = await client.create_session({"model": "gpt-4.1"})
-            event = await session.send_and_wait({"prompt": prompt}, timeout=60.0)
+            async with asyncio.timeout(15):
+                event = await session.send_and_wait({"prompt": prompt}, timeout=15.0)
             if event is None or event.type != SessionEventType.ASSISTANT_MESSAGE:
                 raise GeneratorError("Copilot did not return a message")
             raw = str(event.data.content).strip()
