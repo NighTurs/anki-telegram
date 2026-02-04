@@ -58,6 +58,7 @@ class AnkiMcpClient:
         await self._call_tool("sync", {})
 
     async def _call_tool(self, name: str, arguments: dict) -> dict:
+        logger.info("Anki MCP call started (tool=%s)", name)
         session_id = await self._initialize_session()
         payload = {
             "jsonrpc": "2.0",
@@ -66,9 +67,12 @@ class AnkiMcpClient:
             "params": {"name": name, "arguments": arguments},
         }
         response_text = await self._post_sse(payload, session_id)
-        return _extract_result(response_text)
+        result = _extract_result(response_text)
+        logger.info("Anki MCP call completed (tool=%s)", name)
+        return result
 
     async def _initialize_session(self) -> str:
+        logger.info("Anki MCP initialize started")
         payload = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -83,6 +87,7 @@ class AnkiMcpClient:
         _extract_result(response_text)
         if not session_id:
             raise AnkiClientError("Missing MCP session id")
+        logger.info("Anki MCP initialize completed")
         return session_id
 
     async def _post_sse(

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import logging
 
-from app.anki_client import AnkiClient, AnkiClientError
+from app.anki_client import AnkiClient
 from app.config import Config
-from app.generator import Generator, GeneratorError
+from app.generator import Generator
 from app.models import AddResult, BotResponse, Flashcard
 from app.state import StateStore
 

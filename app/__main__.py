@@ -11,7 +11,11 @@ from app.telegram_adapter import build_application
 
 
 def main() -> None:
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S%z",
+    )
     config = load_config()
     generator = CopilotGenerator()
     anki_client = AnkiMcpClient(base_url=config.anki_mcp_url)

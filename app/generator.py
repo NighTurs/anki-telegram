@@ -14,6 +14,8 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency
 
 from app.models import Flashcard
 
+# ruff: noqa: E501
+
 logger = logging.getLogger(__name__)
 
 PROMPT_HEAD = """
@@ -130,8 +132,10 @@ class CopilotGenerator(Generator):
         await client.start()
         try:
             session = await client.create_session({"model": "gpt-4.1"})
+            logger.info("Copilot request sent")
             async with asyncio.timeout(15):
                 event = await session.send_and_wait({"prompt": prompt}, timeout=15.0)
+            logger.info("Copilot response received")
             if event is None or event.type != SessionEventType.ASSISTANT_MESSAGE:
                 raise GeneratorError("Copilot did not return a message")
             raw = str(event.data.content).strip()
