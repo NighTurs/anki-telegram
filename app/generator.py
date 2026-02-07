@@ -41,7 +41,7 @@ INPUT HANDLING RULES
 0) Preprocess (always):
 - Trim whitespace.
 - Detect an explicit reverse-disable directive anywhere in the input:
-  - "no reverse", "noreverse", "no_reverse", "без реверса", "без обратной"
+  - "no reverse", "noreverse", "no_reverse", "без реверса", "без обратной", "no rev", "no r", "nr"
   If present: set user_no_reverse=true AND remove the directive from the content.
 - If removing the directive leaves extra spaces, normalize spaces.
 
@@ -64,8 +64,8 @@ Action:
 
 CASE C — Single non Russian word/short phrase:
 Action:
-- front = a SIMPLE context sentence in the source language, 3–6 words, that includes the term unchanged.
-- back = Russian translation of the term (not the whole sentence), plus language tag.
+- front = a SIMPLE context sentence in the source language, 3–5 words, that includes the term unchanged.
+- back = Russian translation of the whole sentence, plus language tag.
 
 CASE D — Term / abbreviation / knowledge concept:
 Action:
