@@ -8,9 +8,11 @@ from dataclasses import dataclass
 try:
     from copilot import CopilotClient
     from copilot.generated.session_events import SessionEventType
+    from copilot.session import PermissionHandler
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
     CopilotClient = None
     SessionEventType = None
+    PermissionHandler = None
 
 from app.models import Flashcard
 
@@ -125,22 +127,27 @@ class Generator:
 
 class CopilotGenerator(Generator):
     async def generate(self, text: str) -> GeneratorResult:
-        if CopilotClient is None or SessionEventType is None:
+        if CopilotClient is None or SessionEventType is None or PermissionHandler is None:
             raise GeneratorError("Copilot SDK is not installed")
         prompt = f"{PROMPT_HEAD}\n\nUSER_MESSAGE: {text.strip()}"
         client = CopilotClient()
+        session = None
         await client.start()
         try:
-            session = await client.create_session({"model": "gpt-4.1"})
+            session = await client.create_session(
+                on_permission_request=PermissionHandler.approve_all,
+                model="gpt-4.1",
+            )
             logger.info("Copilot request sent")
             async with asyncio.timeout(15):
-                event = await session.send_and_wait({"prompt": prompt}, timeout=15.0)
+                event = await session.send_and_wait(prompt, timeout=15.0)
             logger.info("Copilot response received")
             if event is None or event.type != SessionEventType.ASSISTANT_MESSAGE:
                 raise GeneratorError("Copilot did not return a message")
             raw = str(event.data.content).strip()
         finally:
-            await session.destroy()
+            if session is not None:
+                await session.disconnect()
             await client.stop()
         flashcard = parse_flashcard_json(raw)
         return GeneratorResult(flashcard=flashcard, raw_output=raw)
