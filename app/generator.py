@@ -42,9 +42,9 @@ INPUT HANDLING RULES
 
 0) Preprocess (always):
 - Trim whitespace.
-- Detect an explicit reverse-disable directive anywhere in the input:
-  - "no reverse", "noreverse", "no_reverse", "без реверса", "без обратной", "no rev", "no r", "nr"
-  If present: set user_no_reverse=true AND remove the directive from the content.
+- Detect an explicit reverse-enable directive anywhere in the input:
+  - "reverse", "реверс", "c обратной", "rev", "r"
+  If present: set user_reverse=true AND remove the directive from the content.
 - If removing the directive leaves extra spaces, normalize spaces.
 
 1) Detect source language tag for the back (only when the original content is NOT Russian):
@@ -77,32 +77,27 @@ Action:
 ====================
 REVERSE CARD POLICY
 ====================
-Default create_reverse=true, except:
-- If user_no_reverse=true -> create_reverse=false
-- Else if reverse is nonsensical -> create_reverse=false. Treat as nonsensical if ANY:
-  - front contains a question mark "?"
-  - back has 2+ sentences (count by . ! ? …)
-  - back contains newline or list markers ("- ", "•", "1)")
-  - back is very long (> 240 characters)
+Default create_reverse=false, except:
+- If user_reverse=true -> create_reverse=true
 
 ====================
 EXAMPLES (behavioral)
 ====================
 
 USER_MESSAGE: warehouse
-Output: {"front":"I work in the warehouse.","back":"Я работаю на складе [EN]","create_reverse":true}
+Output: {"front":"I work in the warehouse.","back":"Я работаю на складе [EN]","create_reverse":false}
 
 USER_MESSAGE: Гордиев узел
-Output: {"front":"Гордиев узел","back":"сложная запутанная проблема","create_reverse":true}
+Output: {"front":"Гордиев узел","back":"сложная запутанная проблема","create_reverse":false}
 
-USER_MESSAGE: Zuchwalstwo
+USER_MESSAGE: Zuchwalstwo rev
 Output: {"front":"Nie toleruję zuchwalstwa.","back":"Я не терплю дерзости [PL]","create_reverse":true}
 
 USER_MESSAGE: ВВП
-Output: {"front":"ВВП","back":"совокупная стоимость всех конечных товаров и услуг, произведённых в стране за период.","create_reverse":true}
-
-USER_MESSAGE: ВВП no reverse
 Output: {"front":"ВВП","back":"совокупная стоимость всех конечных товаров и услуг, произведённых в стране за период.","create_reverse":false}
+
+USER_MESSAGE: ВВП r
+Output: {"front":"ВВП","back":"совокупная стоимость всех конечных товаров и услуг, произведённых в стране за период.","create_reverse":true}
 
 ====================
 NOW DO THE TASK
