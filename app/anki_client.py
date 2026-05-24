@@ -45,14 +45,14 @@ class AnkiMcpClient:
             "fields": {"Front": flashcard.front, "Back": flashcard.back},
             "allow_duplicate": True,
         }
-        result = await self._call_tool("addNote", payload)
+        result = await self._call_tool("add_note", payload)
         note_id = result.get("note_id")
         if note_id is None:
             raise AnkiClientError("Anki returned empty note id")
         return int(note_id)
 
     async def delete_note(self, note_id: int) -> None:
-        await self._call_tool("deleteNotes", {"notes": [note_id], "confirmDeletion": True})
+        await self._call_tool("delete_notes", {"notes": [note_id], "confirmDeletion": True})
 
     async def sync(self) -> None:
         await self._call_tool("sync", {})
@@ -121,5 +121,11 @@ def _extract_result(response_text: str) -> dict:
                 raise AnkiClientError(str(payload["error"]))
             result = payload.get("result")
             if isinstance(result, dict):
-                return result.get("structuredContent", result)
+                structured = result.get("structuredContent", result)
+                if structured.get("isError"):
+                    for item in structured.get("content", []):
+                        if item.get("type") == "text" and item.get("text"):
+                            raise AnkiClientError(item["text"])
+                    raise AnkiClientError("Anki MCP tool returned an error")
+                return structured
     raise AnkiClientError("Unexpected MCP response")
